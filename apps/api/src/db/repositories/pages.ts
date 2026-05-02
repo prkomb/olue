@@ -27,6 +27,12 @@ export async function findById(pageId: string): Promise<Page | null> {
   return doc ? toPage(doc) : null
 }
 
+export async function listByIds(pageIds: string[]): Promise<Page[]> {
+  if (pageIds.length === 0) return []
+  const docs = await col().find({ _id: { $in: pageIds } }).toArray()
+  return docs.map(toPage)
+}
+
 export async function listByCompetitor(competitorId: string): Promise<Page[]> {
   const docs = await col().find({ competitorId }).sort({ fetchedAt: -1 }).toArray()
   return docs.map(toPage)

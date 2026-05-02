@@ -35,9 +35,25 @@ export async function insertMany(chunks: Chunk[]): Promise<number> {
   return r.insertedCount
 }
 
+export interface VectorSearchFilter {
+  competitorId?: string | string[]
+  pageId?: string | string[]
+}
+
+const toAtlasFilter = (f: VectorSearchFilter): Record<string, unknown> => {
+  const out: Record<string, unknown> = {}
+  if (f.competitorId !== undefined) {
+    out.competitorId = Array.isArray(f.competitorId) ? { $in: f.competitorId } : f.competitorId
+  }
+  if (f.pageId !== undefined) {
+    out.pageId = Array.isArray(f.pageId) ? { $in: f.pageId } : f.pageId
+  }
+  return out
+}
+
 export async function vectorSearch(
   queryVector: number[],
-  filter: { competitorId?: string; pageId?: string },
+  filter: VectorSearchFilter,
   opts: { numCandidates?: number; limit?: number } = {},
 ): Promise<Array<Chunk & { score: number }>> {
   const stage = {
@@ -47,7 +63,7 @@ export async function vectorSearch(
       queryVector,
       numCandidates: opts.numCandidates ?? 50,
       limit: opts.limit ?? 5,
-      filter,
+      filter: toAtlasFilter(filter),
     },
   }
   const docs = await col()

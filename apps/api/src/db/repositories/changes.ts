@@ -7,15 +7,22 @@ const col = (): Collection<ChangeDoc> => db().collection<ChangeDoc>('changes')
 export async function list(
   opts: {
     competitorId?: string
+    competitorIds?: string[]
     pageId?: string
+    pageIds?: string[]
     limit?: number
     excludePageIds?: string[]
   } = {},
 ): Promise<Change[]> {
   const filter: Record<string, unknown> = {}
   if (opts.competitorId) filter.competitorId = opts.competitorId
+  else if (opts.competitorIds && opts.competitorIds.length > 0) {
+    filter.competitorId = { $in: opts.competitorIds }
+  }
   if (opts.pageId) filter.pageId = opts.pageId
-  else if (opts.excludePageIds && opts.excludePageIds.length > 0) {
+  else if (opts.pageIds && opts.pageIds.length > 0) {
+    filter.pageId = { $in: opts.pageIds }
+  } else if (opts.excludePageIds && opts.excludePageIds.length > 0) {
     filter.pageId = { $nin: opts.excludePageIds }
   }
   let cursor = col().find(filter).sort({ detectedAt: -1 })

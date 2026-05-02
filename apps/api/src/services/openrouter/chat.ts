@@ -1,14 +1,4 @@
-import OpenAI from 'openai'
-import { config } from '../../config.js'
-
-const client = new OpenAI({
-  apiKey: config.OPENROUTER_API_KEY,
-  baseURL: config.OPENROUTER_BASE_URL,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://github.com/olue',
-    'X-Title': 'olue',
-  },
-})
+import { openrouter } from './client.js'
 
 const MAX_RETRIES = 3
 
@@ -26,7 +16,7 @@ export async function chatJson<T>(opts: ChatJsonOpts): Promise<T> {
   let attempt = 0
   while (true) {
     try {
-      const res = await client.chat.completions.create({
+      const res = await openrouter.chat.completions.create({
         model: opts.model,
         temperature: opts.temperature ?? 0.1,
         max_tokens: opts.maxTokens ?? 4096,

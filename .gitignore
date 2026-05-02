@@ -27,3 +27,4 @@ apps/*/dist
 .env.local
 .env.*.local
 .playwright-mcp
+SUBMISSION.md

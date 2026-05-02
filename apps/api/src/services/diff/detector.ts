@@ -8,11 +8,11 @@ import {
 
 const dmp = new diffMatchPatch.diff_match_patch()
 
-export const SIM_UNCHANGED = 0.92
+export const SIM_UNCHANGED = 0.99
 export const SIM_NEW_FLOOR = 0.7
-export const MIN_CHANGED_CHARS = 40
-export const MIN_NEW_OR_REMOVED_CHARS = 80
-export const MIN_TOTAL_CHANGE_BYTES = 200
+export const MIN_CHANGED_CHARS = 8
+export const MIN_NEW_OR_REMOVED_CHARS = 24
+export const MIN_TOTAL_CHANGE_BYTES = 24
 
 const BOILERPLATE_HEADINGS = [
   'cookie',

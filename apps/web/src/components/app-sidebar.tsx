@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Plus, Trash2 } from 'lucide-react'
+import { LayoutDashboard, MessagesSquare, Plus, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -42,7 +42,7 @@ export function AppSidebar() {
 
       <Separator />
 
-      <nav className="px-2 py-2">
+      <nav className="space-y-0.5 px-2 py-2">
         <NavLink
           to="/"
           end
@@ -57,6 +57,20 @@ export function AppSidebar() {
         >
           <LayoutDashboard className="h-4 w-4" />
           Dashboard
+        </NavLink>
+        <NavLink
+          to="/chat"
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+              isActive
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                : 'text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
+            )
+          }
+        >
+          <MessagesSquare className="h-4 w-4" />
+          Chat
         </NavLink>
       </nav>
 

@@ -18,6 +18,7 @@ const Schema = z.object({
   EMBEDDING_DIMS: z.coerce.number().int().positive().default(1536),
   RANKER_MODEL: z.string().default('qwen/qwen3-30b-a3b-instruct-2507'),
   SUMMARIZER_MODEL: z.string().default('deepseek/deepseek-v4-pro'),
+  CHAT_MODEL: z.string().default('anthropic/claude-sonnet-4.6'),
 
   CRAWL_CONCURRENCY: z.coerce.number().int().positive().max(16).default(3),
   MAX_PAGES_PER_RUN: z.coerce.number().int().positive().max(200).default(30),

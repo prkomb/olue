@@ -57,15 +57,13 @@ export async function summarize(opts: {
     model: config.SUMMARIZER_MODEL,
     system: `You analyze diffs of ONE specific competitor page. Return strict JSON: {"meaningful":boolean,"category":"pricing|product|messaging|hiring|funding|other","severity":"low|medium|high","summary":"<=240 chars, third person, factual"}.
 
-meaningful=false IF the diff is purely:
-- timestamps, "X minutes/hours/days ago", relative dates
-- view counts, like counts, social proof counters
-- carousel/list reordering with same content
-- whitespace, punctuation, capitalization-only
-- date stamps, version strings, build numbers
-- footer/legal boilerplate
-- A/B test variants of identical meaning
-Set meaningful=true ONLY if a real human reviewing competitive intelligence would care.
+Default meaningful=true for any visible text edit a competitor's reader would notice.
+Set meaningful=false ONLY when the diff is exclusively one of:
+- live timestamps / relative dates ("X minutes ago", "Updated today", copyright year)
+- view/like/share/follower counters
+- whitespace-only or pure capitalization changes
+- build numbers / commit hashes / cache busters
+Anything else — copy edits, hero rewrites, removed sections, added paragraphs, restructured headings, deleted blocks, image swaps reflected in alt text — IS meaningful.
 
 Categories:
 - pricing: tier prices, plans, billing, discounts
@@ -80,7 +78,7 @@ Severity:
 - medium = meaningful but localized (new role family, blog launch, copy refresh)
 - low = minor copy or layout tweak still worth noting
 
-Be conservative. Prefer meaningful=false on borderline noise. Summary must reference the specific page change, not generic terms.
+Lean toward meaningful=true. The user wants to see every real text change; they will mark uninteresting ones as read. Summary must reference the specific page change, not generic terms.
 
 Numeric changes (prices, plan limits, percentages, dates, seat counts) are almost always meaningful — set meaningful=true and severity at least medium UNLESS the number is clearly cosmetic (copyright year, view counter, "X minutes ago"). Pricing flips MUST be category="pricing" and severity="high".`,
     user: JSON.stringify({

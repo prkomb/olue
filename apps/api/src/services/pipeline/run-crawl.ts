@@ -239,12 +239,14 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
   }
 
   const diff = diffChunks(oldChunks, newChunks)
+  const structuralFlip =
+    !!existing && (existing.structuralHash ?? '') !== extracted.structuralHash
 
   await chunksRepo.deleteByPage(pageId)
   await chunksRepo.insertMany(newChunks)
   await pagesRepo.upsert(newPage)
 
-  if (!diff.hasChanges) {
+  if (!diff.hasChanges && !structuralFlip) {
     return { url, pageId, status: 'unchanged' }
   }
 
@@ -279,7 +281,7 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
       entriesAfterJudge = diff.entries.filter(
         (e) => !(e.kind === 'changed' && rejectedIds.has(e.newChunk.id)),
       )
-      if (!entriesAfterJudge.some((e) => e.kind !== 'unchanged')) {
+      if (!entriesAfterJudge.some((e) => e.kind !== 'unchanged') && !structuralFlip) {
         return {
           url,
           pageId,
@@ -290,13 +292,40 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
     }
   }
 
+  let entriesForSummary = entriesAfterJudge
+  if (
+    !entriesForSummary.some((e) => e.kind !== 'unchanged') &&
+    structuralFlip &&
+    existing
+  ) {
+    const synthBase = newChunks[0]
+    entriesForSummary = [
+      {
+        kind: 'changed',
+        oldChunk: {
+          ...synthBase,
+          id: 'synth-old',
+          text: existing.markdown.slice(0, 4000),
+          headingPath: ['Page outline'],
+        },
+        newChunk: {
+          ...synthBase,
+          id: 'synth-new',
+          text: newPage.markdown.slice(0, 4000),
+          headingPath: ['Page outline'],
+        },
+        sim: 0,
+      },
+    ]
+  }
+
   let summary: Summary
   try {
     summary = await summarize({
       competitorName: competitor.name,
       url,
       pageTitle: extracted.title,
-      entries: entriesAfterJudge,
+      entries: entriesForSummary,
     })
   } catch (err) {
     return {
@@ -307,18 +336,20 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
     }
   }
 
-  if (!summary.meaningful) {
+  if (!summary.meaningful && !structuralFlip) {
     return { url, pageId, status: 'unchanged', reason: 'summarizer flagged noise-only change' }
   }
 
-  const changedExample = entriesAfterJudge.find((e) => e.kind === 'changed')
-  const addedExample = entriesAfterJudge.find((e) => e.kind === 'new')
+  const changedExample = entriesForSummary.find((e) => e.kind === 'changed')
+  const addedExample = entriesForSummary.find((e) => e.kind === 'new')
   const visual = changedExample
     ? buildVisualDiff(
         changedExample.kind === 'changed' ? changedExample.oldChunk.text : '',
         changedExample.kind === 'changed' ? changedExample.newChunk.text : '',
       )
-    : undefined
+    : structuralFlip && existing
+      ? buildVisualDiff(existing.markdown, newPage.markdown)
+      : undefined
 
   const highlightSource =
     changedExample?.kind === 'changed'

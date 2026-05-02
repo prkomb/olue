@@ -68,6 +68,23 @@ export interface RunState {
   changesEmitted?: number
 }
 
+export interface ChatSource {
+  pageId: string
+  competitorId: string
+  url: string
+  title: string
+  headingPath: string[]
+  score: number
+}
+
+export interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  sources?: ChatSource[]
+  stopped?: boolean
+}
+
 export interface Page {
   id: string
   competitorId: string

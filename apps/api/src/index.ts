@@ -10,6 +10,7 @@ import { healthRoutes } from './routes/health.js'
 import { competitorsRoutes } from './routes/competitors.js'
 import { changesRoutes } from './routes/changes.js'
 import { pagesRoutes } from './routes/pages.js'
+import { chatRoutes } from './routes/chat.js'
 
 const app = Fastify({ logger: { level: config.NODE_ENV === 'production' ? 'info' : 'debug' } })
 
@@ -25,6 +26,7 @@ await app.register(healthRoutes, { prefix: '/api' })
 await app.register(competitorsRoutes, { prefix: '/api' })
 await app.register(changesRoutes, { prefix: '/api' })
 await app.register(pagesRoutes, { prefix: '/api' })
+await app.register(chatRoutes, { prefix: '/api' })
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.on(signal, async () => {

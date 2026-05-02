@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import App from './App.tsx'
+import { ChatRoute } from '@/routes/chat'
 import { CompetitorDetailRoute } from '@/routes/competitor-detail'
 import { DashboardRoute } from '@/routes/dashboard'
 import './index.css'
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route element={<App />}>
               <Route index element={<DashboardRoute />} />
+              <Route path="chat" element={<ChatRoute />} />
               <Route path="competitors/:id" element={<CompetitorDetailRoute />} />
             </Route>
           </Routes>

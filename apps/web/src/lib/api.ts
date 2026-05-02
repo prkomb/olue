@@ -1,5 +1,110 @@
 import ky, { HTTPError } from 'ky'
-import type { Change, Competitor, CompetitorInput, Page, RunState } from '@/types/domain'
+import type {
+  Change,
+  ChatMessage,
+  ChatSource,
+  Competitor,
+  CompetitorInput,
+  Page,
+  RunState,
+} from '@/types/domain'
+
+export interface ChatStreamRequest {
+  competitorIds: string[]
+  pageIds?: string[]
+  messages: Pick<ChatMessage, 'role' | 'content'>[]
+}
+
+export interface ChatStreamHandlers {
+  onSource?: (sources: ChatSource[]) => void
+  onToken?: (text: string) => void
+  onDone?: () => void
+  onError?: (message: string) => void
+}
+
+async function streamChat(
+  body: ChatStreamRequest,
+  handlers: ChatStreamHandlers,
+  signal?: AbortSignal,
+): Promise<void> {
+  let res: Response
+  try {
+    res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal,
+    })
+  } catch (err) {
+    if ((err as { name?: string })?.name === 'AbortError') return
+    handlers.onError?.((err as Error).message ?? 'network error')
+    return
+  }
+
+  if (!res.ok || !res.body) {
+    let message = `chat failed: ${res.status}`
+    try {
+      const data = (await res.json()) as { message?: string }
+      if (data?.message) message = data.message
+    } catch {
+      // ignore
+    }
+    handlers.onError?.(message)
+    return
+  }
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  const dispatch = (event: string, dataRaw: string) => {
+    if (!dataRaw) return
+    let data: unknown = null
+    try {
+      data = JSON.parse(dataRaw)
+    } catch {
+      return
+    }
+    switch (event) {
+      case 'sources':
+        handlers.onSource?.(data as ChatSource[])
+        return
+      case 'token':
+        handlers.onToken?.((data as { text: string }).text)
+        return
+      case 'done':
+        handlers.onDone?.()
+        return
+      case 'error':
+        handlers.onError?.((data as { message: string }).message)
+        return
+    }
+  }
+
+  try {
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+
+      let sepIndex
+      while ((sepIndex = buffer.indexOf('\n\n')) !== -1) {
+        const block = buffer.slice(0, sepIndex)
+        buffer = buffer.slice(sepIndex + 2)
+        let event = 'message'
+        const dataLines: string[] = []
+        for (const line of block.split('\n')) {
+          if (line.startsWith('event:')) event = line.slice(6).trim()
+          else if (line.startsWith('data:')) dataLines.push(line.slice(5).trim())
+        }
+        dispatch(event, dataLines.join('\n'))
+      }
+    }
+  } catch (err) {
+    if ((err as { name?: string })?.name === 'AbortError') return
+    handlers.onError?.((err as Error).message ?? 'stream error')
+  }
+}
 
 const client = ky.create({
   prefix: '/api/',
@@ -71,6 +176,9 @@ export const api = {
         throw err
       }
     },
+  },
+  chat: {
+    stream: streamChat,
   },
   changes: {
     list: (opts: { competitorId?: string; pageId?: string } = {}) => {
