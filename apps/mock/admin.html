@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Acme Analytics — Mock Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 48px 24px;
+        background: #0b1220;
+        color: #e6edf7;
+        display: flex;
+        justify-content: center;
+      }
+      main {
+        max-width: 640px;
+        width: 100%;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0 0 24px;
+        color: #8aa0c4;
+      }
+      .current {
+        background: #1b2742;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        border: 1px solid #2a3a5e;
+      }
+      .current b {
+        color: #6eb6ff;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .actions {
+        display: grid;
+        gap: 12px;
+      }
+      form {
+        margin: 0;
+      }
+      .scenario {
+        width: 100%;
+        padding: 14px 18px;
+        background: #1b2742;
+        color: #e6edf7;
+        border: 1px solid #2a3a5e;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: left;
+      }
+      .scenario:hover {
+        background: #243358;
+      }
+      .scenario.active {
+        background: #1d3a6a;
+        border-color: #4f88d8;
+        color: #b8d6ff;
+      }
+      .pages {
+        margin-top: 32px;
+        font-size: 13px;
+        color: #8aa0c4;
+      }
+      .pages a {
+        color: #6eb6ff;
+        margin-right: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Acme Analytics — Mock Admin</h1>
+      <p>Switch scenarios to simulate competitor changes for the olue crawler.</p>
+      <div class="current">Current scenario: <b>{{current}}</b></div>
+      <div class="actions">{{buttons}}</div>
+      <div class="pages">
+        Pages:
+        <a href="/">/</a>
+        <a href="/pricing">/pricing</a>
+        <a href="/blog">/blog</a>
+        <a href="/changelog">/changelog</a>
+        <a href="/careers">/careers</a>
+        <a href="/about">/about</a>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog — Acme Analytics</title>
+    <meta
+      name="description"
+      content="Stories from the Acme Analytics team about building product analytics, scaling event pipelines, and helping teams ship better software."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="/changelog">Changelog</a>
+        <a href="/careers">Careers</a>
+        <a href="/about">About</a>
+      </nav>
+    </header>
+    <main>
+      <h1>The Acme Analytics blog</h1>
+      <p>Engineering posts, product launches, and customer stories from our team.</p>
+
+      <article>
+        <h2>How we cut event ingestion latency from 12 seconds to under 800ms</h2>
+        <p>Posted March 14, 2026 · Engineering · 9 minute read</p>
+        <p>
+          When we hit our first billion-event week, our ingestion pipeline started to wobble. The
+          old design queued raw events through Kafka into a Postgres staging table before the
+          warehouse sync. That worked at 100 million events a week, but at 1.2 billion it pushed
+          tail latency past 12 seconds. Here is what we did, what failed, and what finally stuck.
+        </p>
+      </article>
+
+      <article>
+        <h2>Building a funnel editor that an actual PM can use</h2>
+        <p>Posted February 27, 2026 · Product · 6 minute read</p>
+        <p>
+          Most analytics tools have funnel editors that look great in a marketing screenshot and
+          fall apart the moment a non-engineer tries to define a real funnel. We rebuilt ours from
+          scratch with a single rule: a product manager should be able to define a 5 step funnel,
+          across 3 platforms, with no help from the data team.
+        </p>
+      </article>
+
+      <article>
+        <h2>Why we open-sourced our session replay player</h2>
+        <p>Posted February 6, 2026 · Open Source · 4 minute read</p>
+        <p>
+          Session replay is one of those features customers ask for, never want to build, and never
+          want to pay extra for. We agreed. So we open-sourced our entire player library under MIT.
+          Use it with Acme, use it with Mixpanel, use it standalone — we do not care.
+        </p>
+      </article>
+    </main>
+  </body>
+</html>

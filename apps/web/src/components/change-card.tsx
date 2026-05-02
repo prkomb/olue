@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { ChevronDown, ChevronRight, Circle, CircleDot, ExternalLink } from 'lucide-react'
@@ -17,8 +17,6 @@ interface Props {
   competitor: Competitor | undefined
 }
 
-const AUTO_READ_DELAY_MS = 600
-
 export function ChangeCard({ change, competitor }: Props) {
   const [open, setOpen] = useState(false)
   const setRead = useSetChangeRead()
@@ -26,33 +24,13 @@ export function ChangeCard({ change, competitor }: Props) {
   const competitorName = competitor?.name ?? 'Unknown competitor'
   const relative = formatDistanceToNow(new Date(change.detectedAt), { addSuffix: true })
   const unread = !change.read
-  const autoReadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (autoReadTimer.current) clearTimeout(autoReadTimer.current)
-    }
-  }, [])
 
   const toggleRead = () => {
-    if (autoReadTimer.current) {
-      clearTimeout(autoReadTimer.current)
-      autoReadTimer.current = null
-    }
     setRead.mutate({ id: change.id, read: unread })
   }
 
   const toggleDiff = () => {
-    setOpen((next) => {
-      const opening = !next
-      if (opening && unread && !setRead.isPending) {
-        autoReadTimer.current = setTimeout(() => {
-          setRead.mutate({ id: change.id, read: true })
-          autoReadTimer.current = null
-        }, AUTO_READ_DELAY_MS)
-      }
-      return opening
-    })
+    setOpen((next) => !next)
   }
 
   return (

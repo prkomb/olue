@@ -7,7 +7,8 @@
     "dev": "run-p dev:*",
     "dev:web": "pnpm --filter @olue/web dev",
     "dev:api": "pnpm --filter @olue/api dev",
-    "build": "pnpm --filter @olue/web build && pnpm --filter @olue/api build",
+    "dev:mock": "pnpm --filter @olue/mock dev",
+    "build": "pnpm --filter @olue/web build && pnpm --filter @olue/api build && pnpm --filter @olue/mock build",
     "lint": "pnpm --filter @olue/web lint",
     "start": "pnpm --filter @olue/api start"
   },

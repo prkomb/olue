@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blog — Acme Analytics</title>
+    <meta
+      name="description"
+      content="Stories from the Acme Analytics team about building product analytics, scaling event pipelines, and helping teams ship better software."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/blog">Blog</a>
+        <a href="/changelog">Changelog</a>
+        <a href="/careers">Careers</a>
+        <a href="/about">About</a>
+      </nav>
+    </header>
+    <main>
+      <aside>
+        <h2>Announcement: Acme Analytics raises $20M Series B</h2>
+        <p>On April 28, 2026 we closed a $20 million Series B led by Accel, with participation from existing investors Index Ventures, Cherry Ventures, and Y Combinator. This brings total funding to $28 million since the company was founded in 2023. Over the next twelve months we will grow the team from 38 to 80 people, expand our AI copilot, and open a third office in London by Q4 2026. Read more on the blog.</p>
+      </aside>
+      <h1>The Acme Analytics blog</h1>
+      <p>Engineering posts, product launches, and customer stories from our team.</p>
+
+      <article>
+        <h2>Acme Analytics raises $20 million Series B led by Accel</h2>
+        <p>Posted April 28, 2026 · Company · 5 minute read</p>
+        <p>
+          Today we are announcing our $20 million Series B led by Accel, with participation from
+          existing investors Index Ventures, Cherry Ventures, and Y Combinator. This brings our
+          total funding to $28 million since founding the company in 2023. We will use the round
+          to grow the team from 38 to 80 people over the next twelve months, double down on our AI
+          copilot, and open a third office in London by the end of the year.
+        </p>
+      </article>
+
+      <article>
+        <h2>How we cut event ingestion latency from 12 seconds to under 800ms</h2>
+        <p>Posted March 14, 2026 · Engineering · 9 minute read</p>
+        <p>
+          When we hit our first billion-event week, our ingestion pipeline started to wobble. The
+          old design queued raw events through Kafka into a Postgres staging table before the
+          warehouse sync. That worked at 100 million events a week, but at 1.2 billion it pushed
+          tail latency past 12 seconds. Here is what we did, what failed, and what finally stuck.
+        </p>
+      </article>
+
+      <article>
+        <h2>Building a funnel editor that an actual PM can use</h2>
+        <p>Posted February 27, 2026 · Product · 6 minute read</p>
+        <p>
+          Most analytics tools have funnel editors that look great in a marketing screenshot and
+          fall apart the moment a non-engineer tries to define a real funnel. We rebuilt ours from
+          scratch with a single rule: a product manager should be able to define a 5 step funnel,
+          across 3 platforms, with no help from the data team.
+        </p>
+      </article>
+
+      <article>
+        <h2>Why we open-sourced our session replay player</h2>
+        <p>Posted February 6, 2026 · Open Source · 4 minute read</p>
+        <p>
+          Session replay is one of those features customers ask for, never want to build, and never
+          want to pay extra for. We agreed. So we open-sourced our entire player library under MIT.
+          Use it with Acme, use it with Mixpanel, use it standalone — we do not care.
+        </p>
+      </article>
+    </main>
+  </body>
+</html>
