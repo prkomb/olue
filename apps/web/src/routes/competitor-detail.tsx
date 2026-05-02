@@ -103,7 +103,7 @@ export function CompetitorDetailRoute() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-5xl space-y-6 px-6 py-8 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl space-y-6 px-6 py-8 lg:px-8">
         <Skeleton className="h-16 w-full" />
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
           <Skeleton className="h-64 w-full" />
@@ -115,7 +115,7 @@ export function CompetitorDetailRoute() {
 
   if (isError || !competitor) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-6 py-16 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-6 py-16 lg:px-8">
         <EmptyState
           title="Competitor not found"
           description="It may have been deleted. Pick another from the sidebar."
@@ -136,7 +136,7 @@ export function CompetitorDetailRoute() {
   ]
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-6 py-8 lg:px-8">
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-6 py-8 lg:px-8">
       <header className="flex flex-wrap items-center gap-4">
         <div className="relative">
           <CompetitorAvatar name={competitor.name} website={competitor.website} size={48} />
@@ -245,7 +245,7 @@ export function CompetitorDetailRoute() {
           </nav>
         </aside>
 
-        <section className="space-y-3">
+        <section className="min-w-0 space-y-3">
           {view === 'notifications' ? (
             <ChangeFeed competitorId={competitor.id} title="Change feed" />
           ) : (
