@@ -14,7 +14,7 @@
 
 # TLDR
 
-**olue** — open-source competitive intelligence tool ("OSS Klue alternative"). Tracks competitor surfaces (corporate site, LinkedIn, G2, pricing, changelog, blog, careers, etc.) daily, diffs them, and surfaces meaningful changes with AI summaries while ignoring noise. Built for a MongoDB hackathon.
+**olue** — open-source competitive intelligence tool ("OSS Klue alternative"). Tracks competitor surfaces (corporate site, LinkedIn, pricing, changelog, blog, careers, etc.) daily, diffs them, and surfaces meaningful changes with AI summaries while ignoring noise. Built for a MongoDB hackathon.
 
 ## Monorepo
 
@@ -28,7 +28,7 @@ Vite proxies `/api` → `:3001`, so the frontend hits real HTTP in dev.
 
 ## Stack
 
-- **Frontend:** React 19, Vite 8, TypeScript, Tailwind v4 (`@tailwindcss/vite`), shadcn/ui (style "new-york", baseColor "neutral"), react-router-dom v7, @tanstack/react-query v5, **ky** for HTTP (replaced `got` — pulled Node-only deps in browser), react-hook-form + zod + @hookform/resolvers, lucide-react v1 (brand icons removed in v1 — use `BriefcaseBusiness` for LinkedIn, `Globe` for website, `Star` for G2, `Link2` for misc), date-fns, sonner toasts.
+- **Frontend:** React 19, Vite 8, TypeScript, Tailwind v4 (`@tailwindcss/vite`), shadcn/ui (style "new-york", baseColor "neutral"), react-router-dom v7, @tanstack/react-query v5, **ky** for HTTP (replaced `got` — pulled Node-only deps in browser), react-hook-form + zod + @hookform/resolvers, lucide-react v1 (brand icons removed in v1 — use `BriefcaseBusiness` for LinkedIn, `Globe` for website, `Link2` for misc), date-fns, sonner toasts.
 - **Backend:** Fastify 5, @fastify/cors, tsx watch in dev. In-memory seed (`apps/api/src/routes/_seed.ts`) — MongoDB swap is the next milestone.
 
 ## Domain

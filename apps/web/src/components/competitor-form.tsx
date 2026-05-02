@@ -29,7 +29,6 @@ const schema = z.object({
     .min(1, 'Required')
     .refine((v) => /^https?:\/\//i.test(v), { message: 'Must start with http(s)://' }),
   linkedin: optionalUrl,
-  g2: optionalUrl,
   otherSources: z
     .array(
       z.object({
@@ -57,7 +56,6 @@ const defaults: FormValues = {
   name: '',
   website: '',
   linkedin: '',
-  g2: '',
   otherSources: [],
 }
 
@@ -69,7 +67,6 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
           name: initial.name,
           website: initial.website,
           linkedin: initial.linkedin ?? '',
-          g2: initial.g2 ?? '',
           otherSources: initial.otherSources.map((s) => ({
             id: s.id,
             label: s.label,
@@ -90,7 +87,6 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
         name: initial.name,
         website: initial.website,
         linkedin: initial.linkedin ?? '',
-        g2: initial.g2 ?? '',
         otherSources: initial.otherSources.map((s) => ({
           id: s.id,
           label: s.label,
@@ -110,7 +106,6 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
             name: values.name,
             website: values.website,
             linkedin: values.linkedin || undefined,
-            g2: values.g2 || undefined,
             otherSources: values.otherSources.map((s) => ({
               id: s.id,
               label: s.label,
@@ -146,34 +141,19 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
             </FormItem>
           )}
         />
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="linkedin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>LinkedIn</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://linkedin.com/company/..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="g2"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>G2</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://g2.com/products/..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="linkedin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>LinkedIn</FormLabel>
+              <FormControl>
+                <Input placeholder="https://linkedin.com/company/..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">

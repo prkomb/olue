@@ -34,7 +34,7 @@ export function DashboardRoute() {
         <EmptyState
           icon={<Telescope className="h-8 w-8" />}
           title="Track your first competitor"
-          description="Add a competitor and we'll surface meaningful changes across their website, LinkedIn, G2 and more."
+          description="Add a competitor and we'll surface meaningful changes across their website, LinkedIn, and other sources."
           action={
             <Button onClick={() => setAddOpen(true)}>
               <Plus className="h-4 w-4" />

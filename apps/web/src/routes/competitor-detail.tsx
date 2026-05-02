@@ -6,7 +6,6 @@ import {
   Globe,
   Pencil,
   RefreshCw,
-  Star,
   Trash2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -98,7 +97,6 @@ export function CompetitorDetailRoute() {
     ...(competitor.linkedin
       ? [{ key: 'linkedin', icon: BriefcaseBusiness, label: 'LinkedIn', url: competitor.linkedin }]
       : []),
-    ...(competitor.g2 ? [{ key: 'g2', icon: Star, label: 'G2', url: competitor.g2 }] : []),
     ...competitor.otherSources.map((s: Source) => ({
       key: `other:${s.id}`,
       icon: ExternalLink,
@@ -177,7 +175,7 @@ export function CompetitorDetailRoute() {
             Sources
           </h2>
           <Card>
-            <CardContent className="p-2">
+            <CardContent className="p-1">
               <ul className="space-y-0.5">
                 {sources.map(({ key, icon: Icon, label, url }) => (
                   <li key={key}>

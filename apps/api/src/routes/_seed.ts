@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 
 export type Category = 'pricing' | 'product' | 'messaging' | 'hiring' | 'funding' | 'other'
 export type Severity = 'low' | 'medium' | 'high'
-export type SourceKind = 'website' | 'linkedin' | 'g2' | 'other'
+export type SourceKind = 'website' | 'linkedin' | 'other'
 
 export interface Source {
   id: string
@@ -16,7 +16,6 @@ export interface Competitor {
   name: string
   website: string
   linkedin?: string
-  g2?: string
   otherSources: Source[]
   createdAt: string
 }
@@ -50,7 +49,6 @@ export const competitors: Competitor[] = [
     name: 'Linear',
     website: 'https://linear.app',
     linkedin: 'https://www.linkedin.com/company/linear-app',
-    g2: 'https://www.g2.com/products/linear/reviews',
     otherSources: [
       { id: randomUUID(), kind: 'other', label: 'Pricing', url: 'https://linear.app/pricing' },
       { id: randomUUID(), kind: 'other', label: 'Changelog', url: 'https://linear.app/changelog' },
@@ -63,7 +61,6 @@ export const competitors: Competitor[] = [
     name: 'Notion',
     website: 'https://www.notion.so',
     linkedin: 'https://www.linkedin.com/company/notionhq',
-    g2: 'https://www.g2.com/products/notion/reviews',
     otherSources: [
       { id: randomUUID(), kind: 'other', label: 'Pricing', url: 'https://www.notion.so/pricing' },
       { id: randomUUID(), kind: 'other', label: 'What’s New', url: 'https://www.notion.so/releases' },
@@ -75,7 +72,6 @@ export const competitors: Competitor[] = [
     name: 'Figma',
     website: 'https://www.figma.com',
     linkedin: 'https://www.linkedin.com/company/figma',
-    g2: 'https://www.g2.com/products/figma/reviews',
     otherSources: [
       { id: randomUUID(), kind: 'other', label: 'Pricing', url: 'https://www.figma.com/pricing/' },
       { id: randomUUID(), kind: 'other', label: 'Blog', url: 'https://www.figma.com/blog/' },
@@ -133,16 +129,6 @@ const seedChanges: Omit<Change, 'read'>[] = [
   },
   {
     id: randomUUID(),
-    competitorId: linearId,
-    sourceId: 'g2',
-    sourceLabel: 'G2',
-    category: 'other',
-    severity: 'low',
-    summary: 'Average rating ticked from 4.6 to 4.7 (↑ 38 new reviews this week).',
-    detectedAt: daysAgo(2),
-  },
-  {
-    id: randomUUID(),
     competitorId: notionId,
     sourceId: 'website',
     sourceLabel: 'Pricing',
@@ -187,16 +173,6 @@ const seedChanges: Omit<Change, 'read'>[] = [
   },
   {
     id: randomUUID(),
-    competitorId: notionId,
-    sourceId: 'g2',
-    sourceLabel: 'G2',
-    category: 'other',
-    severity: 'low',
-    summary: 'Picked up the "Leader — Spring 2026" badge in the Note Taking Software category.',
-    detectedAt: daysAgo(3),
-  },
-  {
-    id: randomUUID(),
     competitorId: figmaId,
     sourceId: 'website',
     sourceLabel: 'Pricing',
@@ -236,16 +212,6 @@ const seedChanges: Omit<Change, 'read'>[] = [
     diffBefore: 'Get started for free',
     diffAfter: 'Start designing with AI',
     detectedAt: daysAgo(1),
-  },
-  {
-    id: randomUUID(),
-    competitorId: figmaId,
-    sourceId: 'g2',
-    sourceLabel: 'G2',
-    category: 'other',
-    severity: 'low',
-    summary: 'Three competitor mentions appeared in fresh reviews comparing Figma to Penpot and Sketch.',
-    detectedAt: daysAgo(2),
   },
   {
     id: randomUUID(),

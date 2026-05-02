@@ -1,6 +1,6 @@
 export type Category = 'pricing' | 'product' | 'messaging' | 'hiring' | 'funding' | 'other'
 export type Severity = 'low' | 'medium' | 'high'
-export type SourceKind = 'website' | 'linkedin' | 'g2' | 'other'
+export type SourceKind = 'website' | 'linkedin' | 'other'
 
 export interface Source {
   id: string
@@ -14,7 +14,6 @@ export interface Competitor {
   name: string
   website: string
   linkedin?: string
-  g2?: string
   otherSources: Source[]
   createdAt: string
 }
@@ -37,7 +36,6 @@ export interface CompetitorInput {
   name: string
   website: string
   linkedin?: string
-  g2?: string
   otherSources: { id?: string; label: string; url: string }[]
 }
 

@@ -54,7 +54,6 @@ interface CompetitorInput {
   name: string
   website: string
   linkedin?: string
-  g2?: string
   otherSources?: OtherSourceInput[]
 }
 
@@ -93,7 +92,6 @@ export async function competitorsRoutes(app: FastifyInstance) {
       name: name.trim(),
       website: website.trim(),
       linkedin: cleanString(req.body.linkedin),
-      g2: cleanString(req.body.g2),
       otherSources: normalizeOtherSources(req.body.otherSources),
       createdAt: new Date().toISOString(),
     }
@@ -112,7 +110,6 @@ export async function competitorsRoutes(app: FastifyInstance) {
         name: cleanString(req.body.name) ?? current.name,
         website: cleanString(req.body.website) ?? current.website,
         linkedin: 'linkedin' in req.body ? cleanString(req.body.linkedin) : current.linkedin,
-        g2: 'g2' in req.body ? cleanString(req.body.g2) : current.g2,
         otherSources:
           'otherSources' in req.body
             ? normalizeOtherSources(req.body.otherSources)

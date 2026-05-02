@@ -1,4 +1,4 @@
-import { Globe, BriefcaseBusiness, Star, Link2 } from 'lucide-react'
+import { Globe, BriefcaseBusiness, Link2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 interface Props {
@@ -8,7 +8,6 @@ interface Props {
 
 function iconFor(sourceId: string, label: string): LucideIcon {
   if (sourceId === 'linkedin' || /linkedin/i.test(label)) return BriefcaseBusiness
-  if (sourceId === 'g2' || /g2/i.test(label)) return Star
   if (sourceId === 'website' || /home/i.test(label) || /website/i.test(label)) return Globe
   return Link2
 }
