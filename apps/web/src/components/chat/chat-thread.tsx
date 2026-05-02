@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Bot, Link2, Loader2, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Markdown } from '@/components/chat/markdown'
 import type { ChatMessage, ChatSource } from '@/types/domain'
 
 interface Props {
@@ -46,6 +47,7 @@ interface BubbleProps {
 function MessageBubble({ message, streaming, pendingSources }: BubbleProps) {
   const isUser = message.role === 'user'
   const sources = message.sources ?? (streaming ? pendingSources ?? undefined : undefined)
+  const anchorPrefix = `src-${message.id}`
 
   return (
     <div className={cn('flex items-start gap-3', isUser && 'flex-row-reverse')}>
@@ -60,24 +62,39 @@ function MessageBubble({ message, streaming, pendingSources }: BubbleProps) {
       <div className={cn('flex max-w-[80%] flex-col gap-2', isUser && 'items-end')}>
         <div
           className={cn(
-            'rounded-lg border px-3 py-2 text-sm whitespace-pre-wrap',
-            isUser ? 'bg-primary text-primary-foreground border-primary' : 'bg-card',
+            'rounded-lg border px-3 py-2 text-sm',
+            isUser
+              ? 'bg-primary text-primary-foreground border-primary whitespace-pre-wrap'
+              : 'bg-card',
           )}
         >
-          {message.content || (streaming ? <span className="text-muted-foreground">…</span> : null)}
-          {message.stopped && (
-            <span className="ml-2 text-xs italic opacity-70">(stopped)</span>
-          )}
+          {isUser ? (
+            <>
+              {message.content}
+              {message.stopped && (
+                <span className="ml-2 text-xs italic opacity-70">(stopped)</span>
+              )}
+            </>
+          ) : message.content ? (
+            <>
+              <Markdown content={message.content} sources={sources} anchorPrefix={anchorPrefix} />
+              {message.stopped && (
+                <span className="ml-2 text-xs italic opacity-70">(stopped)</span>
+              )}
+            </>
+          ) : streaming ? (
+            <span className="text-muted-foreground">…</span>
+          ) : null}
         </div>
         {!isUser && sources && sources.length > 0 && (
-          <SourcesList sources={sources} />
+          <SourcesList sources={sources} anchorPrefix={anchorPrefix} />
         )}
       </div>
     </div>
   )
 }
 
-function SourcesList({ sources }: { sources: ChatSource[] }) {
+function SourcesList({ sources, anchorPrefix }: { sources: ChatSource[]; anchorPrefix: string }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
@@ -85,7 +102,7 @@ function SourcesList({ sources }: { sources: ChatSource[] }) {
       </div>
       <ul className="flex flex-col gap-1">
         {sources.map((s, i) => (
-          <li key={`${s.pageId}-${i}`}>
+          <li key={`${s.pageId}-${i}`} id={`${anchorPrefix}-${i + 1}`}>
             <a
               href={s.url}
               target="_blank"
