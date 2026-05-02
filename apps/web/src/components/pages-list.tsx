@@ -45,6 +45,18 @@ interface PageStats {
 
 const FRESH_CHANGE_MS = 24 * 60 * 60 * 1000
 
+function normalizeUrl(raw: string | undefined): string {
+  if (!raw) return ''
+  try {
+    const u = new URL(raw)
+    const host = u.host.toLowerCase().replace(/^www\./, '')
+    const path = u.pathname.replace(/\/+$/, '') || '/'
+    return `${host}${path}${u.search}`
+  } catch {
+    return raw.replace(/#.*$/, '').replace(/\/+$/, '').toLowerCase()
+  }
+}
+
 interface Props {
   competitorId: string
   runDisabled: boolean
@@ -68,14 +80,12 @@ export function PagesList({ competitorId, runDisabled }: Props) {
   const statsByPage = useMemo(() => {
     const m = new Map<string, PageStats>()
     if (!changes) return m
-    const urlToPageId = new Map<string, string>()
-    for (const p of list) urlToPageId.set(p.url, p.id)
+    const normToPageId = new Map<string, string>()
+    for (const p of list) normToPageId.set(normalizeUrl(p.url), p.id)
     for (const c of changes) {
       const key = (c.pageId && list.some((p) => p.id === c.pageId))
         ? c.pageId
-        : c.url
-          ? urlToPageId.get(c.url)
-          : undefined
+        : normToPageId.get(normalizeUrl(c.url))
       if (!key) continue
       const s = m.get(key) ?? { count: 0, unread: 0 }
       s.count++
@@ -523,13 +533,12 @@ function PageHistory({
   const { data: allChanges, isLoading } = useChanges(competitorId)
   const { data: competitor } = useCompetitor(competitorId)
 
-  const changes = useMemo(
-    () =>
-      (allChanges ?? [])
-        .filter((c) => c.pageId === pageId || c.url === pageUrl)
-        .sort((a, b) => b.detectedAt.localeCompare(a.detectedAt)),
-    [allChanges, pageId, pageUrl],
-  )
+  const changes = useMemo(() => {
+    const target = normalizeUrl(pageUrl)
+    return (allChanges ?? [])
+      .filter((c) => c.pageId === pageId || normalizeUrl(c.url) === target)
+      .sort((a, b) => b.detectedAt.localeCompare(a.detectedAt))
+  }, [allChanges, pageId, pageUrl])
 
   return (
     <div className="bg-muted/30 px-3 py-3">

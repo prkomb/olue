@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { useChanges } from '@/hooks/use-changes'
 import { useCompetitors } from '@/hooks/use-competitors'
@@ -108,34 +107,23 @@ export function AppSidebar() {
                         {unread > 99 ? '99+' : unread}
                       </Badge>
                     )}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className={cn(
-                            'h-6 w-6 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive',
-                            hasUnread && '-ml-5',
-                          )}
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setDeleting(c)
-                          }}
-                          aria-label={`Remove ${c.name}`}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="right"
-                        sideOffset={6}
-                        className="bg-destructive text-destructive-foreground [&>span]:bg-destructive! [&>span]:fill-destructive!"
-                      >
-                        Danger zone — removes {c.name}
-                      </TooltipContent>
-                    </Tooltip>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        'h-6 w-6 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive',
+                        hasUnread && '-ml-5',
+                      )}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setDeleting(c)
+                      }}
+                      aria-label={`Remove ${c.name}`}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
                   </div>
                 </NavLink>
               </li>

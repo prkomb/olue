@@ -8,7 +8,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { CompetitorAvatar } from '@/components/competitor-avatar'
 import { ChangeFeed } from '@/components/change-feed'
 import { CompetitorDialog } from '@/components/competitor-dialog'
@@ -175,25 +174,14 @@ export function CompetitorDetailRoute() {
             <Pencil className="h-4 w-4" />
             Edit
           </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                onClick={() => setDeleting(competitor)}
-                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-                Remove
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent
-              side="bottom"
-              sideOffset={6}
-              className="bg-destructive text-destructive-foreground [&>span]:bg-destructive! [&>span]:fill-destructive!"
-            >
-              Danger zone — removes this competitor and stops tracking it
-            </TooltipContent>
-          </Tooltip>
+          <Button
+            variant="ghost"
+            onClick={() => setDeleting(competitor)}
+            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+            Remove
+          </Button>
         </div>
       </header>
 
