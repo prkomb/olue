@@ -5,8 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import App from './App.tsx'
-import { DashboardRoute } from '@/routes/dashboard'
 import { CompetitorDetailRoute } from '@/routes/competitor-detail'
+import { DashboardRoute } from '@/routes/dashboard'
 import './index.css'
 
 const queryClient = new QueryClient({

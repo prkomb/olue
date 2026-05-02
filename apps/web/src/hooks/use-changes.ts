@@ -9,7 +9,7 @@ const changesKey = (competitorId?: string) =>
 export function useChanges(competitorId?: string) {
   return useQuery({
     queryKey: changesKey(competitorId),
-    queryFn: () => api.changes.list(competitorId),
+    queryFn: () => api.changes.list({ competitorId }),
   })
 }
 

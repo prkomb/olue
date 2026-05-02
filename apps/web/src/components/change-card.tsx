@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
-import { ChevronDown, ChevronRight, Circle, CircleDot } from 'lucide-react'
+import { ChevronDown, ChevronRight, Circle, CircleDot, ExternalLink } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CompetitorAvatar } from '@/components/competitor-avatar'
@@ -131,6 +131,25 @@ export function ChangeCard({ change, competitor }: Props) {
             <SeverityDot severity={change.severity} withLabel />
           </span>
           <div className="ml-auto flex items-center gap-1">
+            {(change.originUrl || change.url) && (
+              <Button
+                asChild
+                type="button"
+                variant="ghost"
+                size="sm"
+                className={cn('h-7 px-2 text-xs', !unread && 'text-muted-foreground')}
+              >
+                <a
+                  href={change.originUrl ?? change.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="View on page"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  View on page
+                </a>
+              </Button>
+            )}
             <Button
               type="button"
               variant="ghost"

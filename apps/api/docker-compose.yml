@@ -1,0 +1,28 @@
+x-lightpanda-base: &lightpanda-base
+  image: lightpanda/browser:nightly
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9222/json/version || exit 1"]
+    interval: 10s
+    timeout: 3s
+    retries: 5
+    start_period: 5s
+
+services:
+  lightpanda-1:
+    <<: *lightpanda-base
+    container_name: olue-lightpanda-1
+    ports:
+      - "127.0.0.1:9222:9222"
+
+  lightpanda-2:
+    <<: *lightpanda-base
+    container_name: olue-lightpanda-2
+    ports:
+      - "127.0.0.1:9223:9222"
+
+  lightpanda-3:
+    <<: *lightpanda-base
+    container_name: olue-lightpanda-3
+    ports:
+      - "127.0.0.1:9224:9222"

@@ -1,6 +1,6 @@
 # Olue
 
-Open-source project for spying on your competitors.
+Open-source competitive intelligence — keep an eye on what your competitors are shipping.
 
 ## Stack
 
@@ -9,9 +9,9 @@ pnpm workspaces monorepo.
 - `apps/web` — Vite + React + TypeScript (port `3000`)
 - `apps/api` — Fastify + TypeScript (port `3001`)
 
-In dev, web proxies `/api/*` to the api so the frontend just calls `fetch('/api/...')`.
+In dev, the web app proxies `/api/*` to the API, so the frontend just calls `fetch('/api/...')`.
 
-## Prereqs
+## Prerequisites
 
 - Node `>=24` (`.nvmrc` pins `v24`)
 - pnpm `>=10`
@@ -27,7 +27,7 @@ Sanity check: `curl http://localhost:3001/api/health`.
 
 ## Scripts (root)
 
-| Script       | Does                                |
+| Script       | What it does                        |
 | ------------ | ----------------------------------- |
 | `pnpm dev`   | Run web + api in parallel           |
 | `pnpm build` | Build both apps                     |
@@ -43,3 +43,4 @@ apps/
   web/   # Vite app
   api/   # Fastify server, routes under /api
 ```
+

@@ -1,51 +1,37 @@
 import type { FastifyInstance } from 'fastify'
-import { changes } from './_seed.js'
+import { z } from 'zod'
 
-interface Query {
-  competitorId?: string
-  limit?: string
-}
+import * as changesRepo from '../db/repositories/changes.js'
 
-interface ReadBody {
-  read: boolean
-}
+const QuerySchema = z.object({
+  competitorId: z.string().optional(),
+  pageId: z.string().optional(),
+  limit: z.coerce.number().int().positive().max(500).optional(),
+})
+
+const ReadBodySchema = z.object({ read: z.boolean() })
+
+const ParamsSchema = z.object({ id: z.string().min(1) })
 
 export async function changesRoutes(app: FastifyInstance) {
-  app.get<{ Querystring: Query }>('/changes', async (req) => {
-    const { competitorId, limit } = req.query
-    let result = changes
-    if (competitorId) result = result.filter((c) => c.competitorId === competitorId)
-    if (limit) {
-      const n = Number.parseInt(limit, 10)
-      if (Number.isFinite(n) && n > 0) result = result.slice(0, n)
-    }
-    return result
+  app.get('/changes', async (req) => {
+    const q = QuerySchema.parse(req.query)
+    return changesRepo.list({ competitorId: q.competitorId, pageId: q.pageId, limit: q.limit })
   })
 
-  app.patch<{ Params: { id: string }; Body: ReadBody }>(
-    '/changes/:id/read',
-    async (req, reply) => {
-      const change = changes.find((c) => c.id === req.params.id)
-      if (!change) return reply.code(404).send({ error: 'Not found' })
-      change.read = !!req.body?.read
-      return change
-    },
-  )
+  app.patch('/changes/:id/read', async (req, reply) => {
+    const { id } = ParamsSchema.parse(req.params)
+    const body = ReadBodySchema.safeParse(req.body)
+    if (!body.success) return reply.code(400).send({ code: 'BAD_REQUEST', message: 'read:boolean required' })
+    const updated = await changesRepo.setRead(id, body.data.read)
+    if (!updated) return reply.code(404).send({ code: 'NOT_FOUND', message: 'Change not found' })
+    return updated
+  })
 
-  app.post<{ Querystring: { competitorId?: string }; Body?: ReadBody }>(
-    '/changes/read-all',
-    async (req) => {
-      const competitorId = req.query.competitorId
-      const target = req.body?.read ?? true
-      let updated = 0
-      for (const c of changes) {
-        if (competitorId && c.competitorId !== competitorId) continue
-        if (c.read !== target) {
-          c.read = target
-          updated++
-        }
-      }
-      return { updated }
-    },
-  )
+  app.post('/changes/read-all', async (req) => {
+    const competitorId = (req.query as { competitorId?: string })?.competitorId
+    const target = ((req.body as { read?: boolean })?.read) ?? true
+    const updated = await changesRepo.setReadAll(competitorId, target)
+    return { updated }
+  })
 }

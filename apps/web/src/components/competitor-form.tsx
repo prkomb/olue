@@ -15,12 +15,6 @@ import {
 import { Input } from '@/components/ui/input'
 import type { Competitor, CompetitorInput } from '@/types/domain'
 
-const optionalUrl = z
-  .string()
-  .trim()
-  .optional()
-  .refine((v) => !v || /^https?:\/\//i.test(v), { message: 'Must start with http(s)://' })
-
 const schema = z.object({
   name: z.string().trim().min(1, 'Required').max(80),
   website: z
@@ -28,7 +22,6 @@ const schema = z.object({
     .trim()
     .min(1, 'Required')
     .refine((v) => /^https?:\/\//i.test(v), { message: 'Must start with http(s)://' }),
-  linkedin: optionalUrl,
   otherSources: z
     .array(
       z.object({
@@ -55,7 +48,6 @@ interface Props {
 const defaults: FormValues = {
   name: '',
   website: '',
-  linkedin: '',
   otherSources: [],
 }
 
@@ -66,7 +58,6 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
       ? {
           name: initial.name,
           website: initial.website,
-          linkedin: initial.linkedin ?? '',
           otherSources: initial.otherSources.map((s) => ({
             id: s.id,
             label: s.label,
@@ -86,7 +77,6 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
       form.reset({
         name: initial.name,
         website: initial.website,
-        linkedin: initial.linkedin ?? '',
         otherSources: initial.otherSources.map((s) => ({
           id: s.id,
           label: s.label,
@@ -105,7 +95,6 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
           onSubmit({
             name: values.name,
             website: values.website,
-            linkedin: values.linkedin || undefined,
             otherSources: values.otherSources.map((s) => ({
               id: s.id,
               label: s.label,
@@ -141,20 +130,6 @@ export function CompetitorForm({ initial, submitting, onSubmit, onCancel }: Prop
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="linkedin"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>LinkedIn</FormLabel>
-              <FormControl>
-                <Input placeholder="https://linkedin.com/company/..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <FormLabel>Other sources</FormLabel>

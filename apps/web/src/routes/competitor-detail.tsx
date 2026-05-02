@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  BriefcaseBusiness,
-  ExternalLink,
-  Globe,
-  Pencil,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react'
+import { Bell, ExternalLink, FileText, Globe, Pencil, RefreshCw, Trash2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -21,6 +14,8 @@ import { ChangeFeed } from '@/components/change-feed'
 import { CompetitorDialog } from '@/components/competitor-dialog'
 import { DeleteCompetitorDialog } from '@/components/delete-competitor-dialog'
 import { EmptyState } from '@/components/empty-state'
+import { PagesList } from '@/components/pages-list'
+import { useCompetitorPages } from '@/hooks/use-pages'
 import { useChanges } from '@/hooks/use-changes'
 import {
   useCompetitor,
@@ -37,12 +32,50 @@ interface SourceRow {
   url: string
 }
 
+function RailButton({
+  icon: Icon,
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  icon: LucideIcon
+  label: string
+  count: number
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        active
+          ? 'flex w-full items-center gap-2 rounded-md bg-sidebar-accent px-2 py-2 text-sm text-sidebar-accent-foreground'
+          : 'flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'
+      }
+      aria-pressed={active}
+    >
+      <Icon className="h-4 w-4" />
+      <span className="flex-1 text-left">{label}</span>
+      {count > 0 && (
+        <span className="rounded-full bg-muted px-1.5 text-[10px] font-medium tabular-nums text-muted-foreground">
+          {count}
+        </span>
+      )}
+    </button>
+  )
+}
+
 export function CompetitorDetailRoute() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: competitor, isLoading, isError } = useCompetitor(id)
   const { data: changes } = useChanges(id)
+  const { data: pages } = useCompetitorPages(id)
   const unreadCount = changes?.filter((c) => !c.read).length ?? 0
+  const pagesCount = pages?.length ?? 0
+  const [view, setView] = useState<'notifications' | 'pages'>('notifications')
   const [editOpen, setEditOpen] = useState(false)
   const [deleting, setDeleting] = useState<typeof competitor | null>(null)
   const { data: runState } = useCompetitorRun(id)
@@ -94,9 +127,6 @@ export function CompetitorDetailRoute() {
 
   const sources: SourceRow[] = [
     { key: 'website', icon: Globe, label: 'Website', url: competitor.website },
-    ...(competitor.linkedin
-      ? [{ key: 'linkedin', icon: BriefcaseBusiness, label: 'LinkedIn', url: competitor.linkedin }]
-      : []),
     ...competitor.otherSources.map((s: Source) => ({
       key: `other:${s.id}`,
       icon: ExternalLink,
@@ -170,34 +200,57 @@ export function CompetitorDetailRoute() {
       <Separator />
 
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
-        <aside className="space-y-3">
-          <h2 className="px-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-            Sources
-          </h2>
-          <Card>
-            <CardContent className="p-1">
-              <ul className="space-y-0.5">
-                {sources.map(({ key, icon: Icon, label, url }) => (
-                  <li key={key}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
-                    >
-                      <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="truncate">{label}</span>
-                      <ExternalLink className="ml-auto h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+        <aside className="space-y-6">
+          <div className="space-y-3">
+            <h2 className="px-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+              Sources
+            </h2>
+            <Card>
+              <CardContent className="p-1">
+                <ul className="space-y-0.5">
+                  {sources.map(({ key, icon: Icon, label, url }) => (
+                    <li key={key}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+                      >
+                        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="truncate">{label}</span>
+                        <ExternalLink className="ml-auto h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <nav className="space-y-0.5">
+            <RailButton
+              icon={Bell}
+              label="Notifications"
+              count={unreadCount}
+              active={view === 'notifications'}
+              onClick={() => setView('notifications')}
+            />
+            <RailButton
+              icon={FileText}
+              label="Pages"
+              count={pagesCount}
+              active={view === 'pages'}
+              onClick={() => setView('pages')}
+            />
+          </nav>
         </aside>
 
         <section className="space-y-3">
-          <ChangeFeed competitorId={competitor.id} title="Change feed" />
+          {view === 'notifications' ? (
+            <ChangeFeed competitorId={competitor.id} title="Change feed" />
+          ) : (
+            <PagesList competitorId={competitor.id} runDisabled={isRunning} />
+          )}
         </section>
       </div>
 
