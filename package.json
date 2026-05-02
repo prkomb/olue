@@ -1,0 +1,21 @@
+{
+  "name": "olue",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.27.0",
+  "scripts": {
+    "dev": "run-p dev:*",
+    "dev:web": "pnpm --filter @olue/web dev",
+    "dev:api": "pnpm --filter @olue/api dev",
+    "build": "pnpm --filter @olue/web build && pnpm --filter @olue/api build",
+    "lint": "pnpm --filter @olue/web lint",
+    "start": "pnpm --filter @olue/api start"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=10"
+  }
+}
