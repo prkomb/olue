@@ -11,6 +11,7 @@ import { runSingleUrl } from '../services/pipeline/run-single.js'
 const ParamsSchema = z.object({ id: z.string().min(1) })
 const PageParamsSchema = z.object({ id: z.string().min(1), pageId: z.string().min(1) })
 const AddBodySchema = z.object({ url: z.string().min(1) })
+const IgnoreBodySchema = z.object({ ignored: z.boolean() })
 
 export async function pagesRoutes(app: FastifyInstance) {
   app.get('/pages', async () => pagesRepo.listAll())
@@ -102,6 +103,21 @@ export async function pagesRoutes(app: FastifyInstance) {
     await chunksRepo.deleteByPage(pageId)
     await pagesRepo.deleteById(pageId)
     return { ok: true }
+  })
+
+  app.patch('/competitors/:id/pages/:pageId/ignored', async (req, reply) => {
+    const { id, pageId } = PageParamsSchema.parse(req.params)
+    const body = IgnoreBodySchema.safeParse(req.body)
+    if (!body.success) {
+      return reply.code(400).send({ code: 'BAD_REQUEST', message: 'ignored:boolean required' })
+    }
+    const page = await pagesRepo.findById(pageId)
+    if (!page || page.competitorId !== id) {
+      return reply.code(404).send({ code: 'NOT_FOUND', message: 'Page not found' })
+    }
+    const updated = await pagesRepo.setIgnored(pageId, body.data.ignored)
+    if (!updated) return reply.code(404).send({ code: 'NOT_FOUND', message: 'Page not found' })
+    return updated
   })
 
   app.post('/competitors/:id/pages/:pageId/recheck', async (req, reply) => {

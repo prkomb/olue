@@ -55,6 +55,10 @@ export const api = {
     },
     remove: (competitorId: string, pageId: string) =>
       client.delete(`competitors/${competitorId}/pages/${pageId}`).json<{ ok: true }>(),
+    setIgnored: (competitorId: string, pageId: string, ignored: boolean) =>
+      client
+        .patch(`competitors/${competitorId}/pages/${pageId}/ignored`, { json: { ignored } })
+        .json<Page>(),
     recheck: async (competitorId: string, pageId: string): Promise<RunState> => {
       try {
         return await client

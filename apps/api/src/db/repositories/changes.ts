@@ -5,11 +5,19 @@ import { toChange, toChangeDoc, type Change, type ChangeDoc } from '../../schema
 const col = (): Collection<ChangeDoc> => db().collection<ChangeDoc>('changes')
 
 export async function list(
-  opts: { competitorId?: string; pageId?: string; limit?: number } = {},
+  opts: {
+    competitorId?: string
+    pageId?: string
+    limit?: number
+    excludePageIds?: string[]
+  } = {},
 ): Promise<Change[]> {
   const filter: Record<string, unknown> = {}
   if (opts.competitorId) filter.competitorId = opts.competitorId
   if (opts.pageId) filter.pageId = opts.pageId
+  else if (opts.excludePageIds && opts.excludePageIds.length > 0) {
+    filter.pageId = { $nin: opts.excludePageIds }
+  }
   let cursor = col().find(filter).sort({ detectedAt: -1 })
   if (opts.limit && opts.limit > 0) cursor = cursor.limit(opts.limit)
   const docs = await cursor.toArray()

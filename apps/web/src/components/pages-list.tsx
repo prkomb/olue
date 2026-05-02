@@ -2,11 +2,14 @@ import { useMemo, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import {
   AlertTriangle,
+  BellOff,
   ChevronDown,
   ChevronRight,
   CircleAlert,
   CircleCheck,
   CircleX,
+  Eye,
+  EyeOff,
   ExternalLink,
   Globe,
   Pencil,
@@ -32,6 +35,7 @@ import {
   useCompetitorPages,
   useRecheckPage,
   useRemovePage,
+  useTogglePageIgnored,
   useUpdatePageUrl,
 } from '@/hooks/use-pages'
 import { cn } from '@/lib/utils'
@@ -74,6 +78,7 @@ export function PagesList({ competitorId, runDisabled }: Props) {
   const updatePage = useUpdatePageUrl(competitorId)
   const removePage = useRemovePage(competitorId)
   const recheckPage = useRecheckPage(competitorId)
+  const toggleIgnored = useTogglePageIgnored(competitorId)
 
   const list = pages ?? []
 
@@ -191,7 +196,8 @@ export function PagesList({ competitorId, runDisabled }: Props) {
                 const isMutating =
                   (recheckPage.isPending && recheckPage.variables === page.id) ||
                   (removePage.isPending && removePage.variables === page.id) ||
-                  (updatePage.isPending && updatePage.variables?.pageId === page.id)
+                  (updatePage.isPending && updatePage.variables?.pageId === page.id) ||
+                  (toggleIgnored.isPending && toggleIgnored.variables?.pageId === page.id)
                 return (
                   <li key={page.id} className="rounded-md transition-colors">
                     {isEditing ? (
@@ -228,6 +234,21 @@ export function PagesList({ competitorId, runDisabled }: Props) {
                             onError: () => toast.error('Could not remove page'),
                           })
                         }
+                        onToggleIgnored={() => {
+                          const next = !page.ignored
+                          toggleIgnored.mutate(
+                            { pageId: page.id, ignored: next },
+                            {
+                              onSuccess: () =>
+                                toast.success(
+                                  next
+                                    ? 'Page ignored — changes hidden from feed'
+                                    : 'Page un-ignored — changes restored',
+                                ),
+                              onError: () => toast.error('Could not update ignore state'),
+                            },
+                          )
+                        }}
                       />
                     )}
                     {isExpanded && (
@@ -258,6 +279,7 @@ interface PageRowProps {
   onRecheck: () => void
   onEdit: () => void
   onDelete: () => void
+  onToggleIgnored: () => void
 }
 
 function PageRow({
@@ -270,12 +292,14 @@ function PageRow({
   onRecheck,
   onEdit,
   onDelete,
+  onToggleIgnored,
 }: PageRowProps) {
   const path = formatPath(page.url)
   const fetchedAgo = page.fetchedAt
     ? formatDistanceToNow(new Date(page.fetchedAt), { addSuffix: true })
     : ''
   const isFailed = page.status === 'failed'
+  const isIgnored = page.ignored === true
   const lastChangeMs = stats?.latest ? Date.parse(stats.latest.detectedAt) : 0
   const isFresh = lastChangeMs > 0 && Date.now() - lastChangeMs < FRESH_CHANGE_MS
 
@@ -284,7 +308,8 @@ function PageRow({
       className={cn(
         'group/row flex items-center gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-accent',
         expanded && 'bg-accent',
-        isFailed && !expanded && 'bg-destructive/5',
+        isFailed && !expanded && !isIgnored && 'bg-destructive/5',
+        isIgnored && 'bg-muted/40 opacity-60',
       )}
     >
       <button
@@ -300,13 +325,23 @@ function PageRow({
           <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         )}
         <StatusIcon page={page} />
-        {page.pinned && (
+        {page.pinned && !isIgnored && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Pin className="h-3 w-3 shrink-0 text-muted-foreground" />
             </TooltipTrigger>
             <TooltipContent side="top" sideOffset={6}>
               Manually pinned
+            </TooltipContent>
+          </Tooltip>
+        )}
+        {isIgnored && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <BellOff className="h-3 w-3 shrink-0 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={6}>
+              Ignored — not crawled, changes hidden
             </TooltipContent>
           </Tooltip>
         )}
@@ -384,12 +419,20 @@ function PageRow({
           disabled={false}
         />
         <ActionButton
-          icon={RefreshCw}
-          label="Recheck"
-          onClick={onRecheck}
-          disabled={disabled || mutating}
-          spinning={mutating}
+          icon={isIgnored ? Eye : EyeOff}
+          label={isIgnored ? 'Un-ignore page' : 'Ignore page'}
+          onClick={onToggleIgnored}
+          disabled={mutating}
         />
+        {!isIgnored && (
+          <ActionButton
+            icon={RefreshCw}
+            label="Recheck"
+            onClick={onRecheck}
+            disabled={disabled || mutating}
+            spinning={mutating}
+          />
+        )}
         <ActionButton icon={Pencil} label="Edit URL" onClick={onEdit} disabled={disabled || mutating} />
         <ActionButton
           icon={Trash2}

@@ -55,7 +55,7 @@ export async function updateUrl(pageId: string, newUrl: string, newUrlHash: stri
         status: 'ok',
         fetchedAt: new Date().toISOString(),
       },
-      $unset: { httpStatus: '', degradedReason: '', via: '' },
+      $unset: { httpStatus: '', degradedReason: '', via: '', structuralHash: '' },
     },
   )
   return r.matchedCount === 1
@@ -74,4 +74,20 @@ export async function upsert(p: Page): Promise<void> {
 export async function deleteByCompetitor(competitorId: string): Promise<number> {
   const r = await col().deleteMany({ competitorId })
   return r.deletedCount
+}
+
+export async function setIgnored(pageId: string, ignored: boolean): Promise<Page | null> {
+  const r = await col().findOneAndUpdate(
+    { _id: pageId },
+    ignored ? { $set: { ignored: true } } : { $unset: { ignored: '' } },
+    { returnDocument: 'after' },
+  )
+  return r ? toPage(r) : null
+}
+
+export async function listIgnoredPageIds(competitorId?: string): Promise<string[]> {
+  const filter: Record<string, unknown> = { ignored: true }
+  if (competitorId) filter.competitorId = competitorId
+  const docs = await col().find(filter, { projection: { _id: 1 } }).toArray()
+  return docs.map((d) => d._id)
 }

@@ -11,12 +11,14 @@ export const PageSchema = z.object({
   title: z.string().optional(),
   markdown: z.string(),
   contentHash: z.string(),
+  structuralHash: z.string().optional(),
   fetchedAt: z.string(),
   status: PageStatusSchema,
   httpStatus: z.number().int().optional(),
   degradedReason: z.string().optional(),
   via: z.enum(['lightpanda', 'chromium', 'static', 'none']).optional(),
   pinned: z.boolean().optional(),
+  ignored: z.boolean().optional(),
 })
 export type Page = z.infer<typeof PageSchema>
 

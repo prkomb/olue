@@ -82,4 +82,5 @@ export interface Page {
   degradedReason?: string
   via?: PageVia
   pinned?: boolean
+  ignored?: boolean
 }

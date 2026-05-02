@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 
 import * as changesRepo from '../db/repositories/changes.js'
+import * as pagesRepo from '../db/repositories/pages.js'
 
 const QuerySchema = z.object({
   competitorId: z.string().optional(),
@@ -16,7 +17,15 @@ const ParamsSchema = z.object({ id: z.string().min(1) })
 export async function changesRoutes(app: FastifyInstance) {
   app.get('/changes', async (req) => {
     const q = QuerySchema.parse(req.query)
-    return changesRepo.list({ competitorId: q.competitorId, pageId: q.pageId, limit: q.limit })
+    const excludePageIds = q.pageId
+      ? undefined
+      : await pagesRepo.listIgnoredPageIds(q.competitorId)
+    return changesRepo.list({
+      competitorId: q.competitorId,
+      pageId: q.pageId,
+      limit: q.limit,
+      excludePageIds,
+    })
   })
 
   app.patch('/changes/:id/read', async (req, reply) => {

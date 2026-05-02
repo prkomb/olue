@@ -43,14 +43,16 @@ export async function runCrawl(competitorId: string): Promise<void> {
     const { urls } = await discoverUrls(competitor.website)
 
     const existingPages = await pagesRepo.listByCompetitor(competitorId)
-    const pinnedUrls = existingPages.filter((p) => p.pinned).map((p) => p.url)
+    const ignoredUrls = new Set(existingPages.filter((p) => p.ignored).map((p) => p.url))
+    const activePages = existingPages.filter((p) => !p.ignored)
+    const pinnedUrls = activePages.filter((p) => p.pinned).map((p) => p.url)
 
     const explicit = uniqueUrls([
       competitor.website,
       ...(competitor.otherSources ?? []).map((s) => s.url).filter(isHttp),
       ...pinnedUrls,
-    ])
-    const candidates = uniqueUrls([...explicit, ...urls])
+    ]).filter((u) => !ignoredUrls.has(u))
+    const candidates = uniqueUrls([...explicit, ...urls]).filter((u) => !ignoredUrls.has(u))
 
     await runsRepo.setProgress(competitorId, { stage: 'rank', done: 0, total: candidates.length })
     const picked = await rankPages({
@@ -59,7 +61,9 @@ export async function runCrawl(competitorId: string): Promise<void> {
       candidates,
       limit: config.MAX_PAGES_PER_RUN,
     })
-    const targets = uniqueUrls([...explicit, ...picked]).slice(0, config.MAX_PAGES_PER_RUN)
+    const targets = uniqueUrls([...explicit, ...picked])
+      .filter((u) => !ignoredUrls.has(u))
+      .slice(0, config.MAX_PAGES_PER_RUN)
 
     if (targets.length === 0) {
       await runsRepo.finish(competitorId, { changesEmitted: 0 })
@@ -112,6 +116,7 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
       title: existing?.title,
       markdown: existing?.markdown ?? '',
       contentHash: existing?.contentHash ?? '',
+      structuralHash: existing?.structuralHash,
       fetchedAt: new Date().toISOString(),
       status: 'failed',
       httpStatus: fetched.httpStatus,
@@ -135,6 +140,7 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
       title: extracted.title,
       markdown: extracted.markdown,
       contentHash: sha256(extracted.markdown),
+      structuralHash: extracted.structuralHash,
       fetchedAt: new Date().toISOString(),
       status: 'degraded',
       httpStatus: fetched.httpStatus,
@@ -153,10 +159,16 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
   const existing = await pagesRepo.findByCompetitorAndUrlHash(competitor.id, urlHash)
   const isFirstSnapshot = !existing
 
-  if (existing && existing.contentHash === newContentHash && existing.contentHash !== '') {
+  if (
+    existing &&
+    existing.contentHash === newContentHash &&
+    existing.contentHash !== '' &&
+    (existing.structuralHash ?? '') === extracted.structuralHash
+  ) {
     await pagesRepo.upsert({
       ...existing,
       title: extracted.title,
+      structuralHash: extracted.structuralHash,
       fetchedAt: new Date().toISOString(),
       status: fetched.degraded ? 'degraded' : 'ok',
       httpStatus: fetched.httpStatus,
@@ -178,6 +190,7 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
       title: extracted.title,
       markdown: extracted.markdown,
       contentHash: newContentHash,
+      structuralHash: extracted.structuralHash,
       fetchedAt: new Date().toISOString(),
       status: 'degraded',
       httpStatus: fetched.httpStatus,
@@ -207,6 +220,7 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
     title: extracted.title,
     markdown: extracted.markdown,
     contentHash: newContentHash,
+    structuralHash: extracted.structuralHash,
     fetchedAt: new Date().toISOString(),
     status: fetched.degraded ? 'degraded' : 'ok',
     httpStatus: fetched.httpStatus,

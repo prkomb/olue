@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { Defuddle } from 'defuddle/node'
 import { JSDOM } from 'jsdom'
 
@@ -8,23 +9,42 @@ export interface Extracted {
   bodyTextLength: number
   linkCount: number
   headingCount: number
+  structuralHash: string
 }
+
+const STRIP_SELECTORS = ['script', 'style', 'noscript', 'template', 'iframe']
 
 export async function extract(html: string, url: string): Promise<Extracted> {
   const dom = new JSDOM(html, { url })
   const doc = dom.window.document
   const result = await Defuddle(dom, url, { markdown: true })
-  const md = (result?.content ?? '').trim()
+  const defuddleMd = (result?.content ?? '').trim()
+
+  const title =
+    typeof result?.title === 'string' && result.title.trim().length > 0
+      ? result.title.trim()
+      : undefined
 
   const body = doc.body
-  const bodyTextLength = body
-    ? (body.textContent ?? '').replace(/\s+/g, ' ').trim().length
-    : 0
+  const cleanBody = body?.cloneNode(true) as HTMLElement | undefined
+  if (cleanBody) {
+    cleanBody.querySelectorAll(STRIP_SELECTORS.join(',')).forEach((el) => {
+      el.remove()
+    })
+  }
+
+  const bodyPlaintext = cleanBody
+    ? (cleanBody.textContent ?? '').replace(/\s+/g, ' ').trim()
+    : ''
+  const bodyTextLength = bodyPlaintext.length
+  const structuralHash = createHash('sha256')
+    .update(bodyPlaintext.toLowerCase())
+    .digest('hex')
 
   let linkCount = 0
-  if (body) {
+  if (cleanBody) {
     const seen = new Set<string>()
-    body.querySelectorAll('a[href]').forEach((a) => {
+    cleanBody.querySelectorAll('a[href]').forEach((a) => {
       const href = (a.getAttribute('href') ?? '').trim()
       const text = (a.textContent ?? '').replace(/\s+/g, ' ').trim()
       if (!href || !text) return
@@ -35,17 +55,32 @@ export async function extract(html: string, url: string): Promise<Extracted> {
     })
   }
 
-  const headingCount = body ? body.querySelectorAll('h1, h2, h3, h4').length : 0
+  const headingNodes = cleanBody ? cleanBody.querySelectorAll('h1, h2, h3, h4') : []
+  const headingCount = headingNodes.length
+  const headingLines: string[] = []
+  headingNodes.forEach((h) => {
+    const text = (h.textContent ?? '').replace(/\s+/g, ' ').trim()
+    if (text) headingLines.push(`${h.tagName.toUpperCase()}: ${text}`)
+  })
+
+  const metaLines = [
+    '## Page outline',
+    title ? `Title: ${title}` : null,
+    `URL: ${url}`,
+    ...headingLines,
+    `Body fingerprint: ${structuralHash}`,
+  ].filter((l): l is string => l !== null)
+  const metaBlock = metaLines.join('\n')
+
+  const markdown = defuddleMd ? `${metaBlock}\n\n---\n\n${defuddleMd}` : metaBlock
 
   return {
-    title:
-      typeof result?.title === 'string' && result.title.trim().length > 0
-        ? result.title.trim()
-        : undefined,
-    markdown: md,
-    textLength: md.length,
+    title,
+    markdown,
+    textLength: markdown.length,
     bodyTextLength,
     linkCount,
     headingCount,
+    structuralHash,
   }
 }

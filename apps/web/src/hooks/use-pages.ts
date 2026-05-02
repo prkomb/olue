@@ -66,3 +66,15 @@ export function useRecheckPage(competitorId: string) {
     },
   })
 }
+
+export function useTogglePageIgnored(competitorId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ pageId, ignored }: { pageId: string; ignored: boolean }) =>
+      api.pages.setIgnored(competitorId, pageId, ignored),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: pagesKey(competitorId) })
+      qc.invalidateQueries({ queryKey: ['changes'] })
+    },
+  })
+}
