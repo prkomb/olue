@@ -37,7 +37,7 @@ export function AppSidebar() {
         <img src="/favicon.svg" alt="" aria-hidden className="h-8 w-8" />
         <div className="leading-tight">
           <div className="text-sm font-semibold">Olue</div>
-          <div className="text-[11px] text-muted-foreground">Competitive Intel</div>
+          <div className="text-[11px] text-muted-foreground">Competitive Intelligence</div>
         </div>
       </div>
 
