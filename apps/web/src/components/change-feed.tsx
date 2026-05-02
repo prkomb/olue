@@ -47,9 +47,10 @@ const READ_MODES: { value: ReadMode; label: string }[] = [
 
 interface Props {
   competitorId?: string
+  title?: string
 }
 
-export function ChangeFeed({ competitorId }: Props) {
+export function ChangeFeed({ competitorId, title }: Props) {
   const { data: changes, isLoading } = useChanges(competitorId)
   const { data: competitors } = useCompetitors()
   const setAllRead = useSetAllRead()
@@ -163,6 +164,12 @@ export function ChangeFeed({ competitorId }: Props) {
           </Button>
         )}
       </div>
+
+      {title && (
+        <h2 className="px-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+          {title}
+        </h2>
+      )}
 
       {isLoading && (
         <div className="space-y-3">

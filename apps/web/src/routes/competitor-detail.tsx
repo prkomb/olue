@@ -199,10 +199,7 @@ export function CompetitorDetailRoute() {
         </aside>
 
         <section className="space-y-3">
-          <h2 className="px-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-            Change feed
-          </h2>
-          <ChangeFeed competitorId={competitor.id} />
+          <ChangeFeed competitorId={competitor.id} title="Change feed" />
         </section>
       </div>
 
