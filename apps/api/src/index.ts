@@ -1,9 +1,15 @@
 import Fastify from 'fastify'
+import cors from '@fastify/cors'
 import { healthRoutes } from './routes/health.js'
+import { competitorsRoutes } from './routes/competitors.js'
+import { changesRoutes } from './routes/changes.js'
 
 const app = Fastify({ logger: true })
 
+await app.register(cors, { origin: true })
 await app.register(healthRoutes, { prefix: '/api' })
+await app.register(competitorsRoutes, { prefix: '/api' })
+await app.register(changesRoutes, { prefix: '/api' })
 
 const port = Number(process.env.PORT ?? 3001)
 const host = process.env.HOST ?? '0.0.0.0'

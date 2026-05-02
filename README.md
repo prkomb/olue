@@ -1,6 +1,6 @@
 # Olue
 
-Open-source alternative to Klue AI.
+Open-source project for spying on your competitors.
 
 ## Stack
 
