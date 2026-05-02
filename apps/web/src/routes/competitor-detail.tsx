@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { Bell, ExternalLink, FileText, Globe, Pencil, RefreshCw, Trash2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
@@ -14,7 +15,7 @@ import { CompetitorDialog } from '@/components/competitor-dialog'
 import { DeleteCompetitorDialog } from '@/components/delete-competitor-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { PagesList } from '@/components/pages-list'
-import { useCompetitorPages } from '@/hooks/use-pages'
+import { pagesKey, useCompetitorPages } from '@/hooks/use-pages'
 import { useChanges } from '@/hooks/use-changes'
 import {
   useCompetitor,
@@ -69,6 +70,7 @@ function RailButton({
 export function CompetitorDetailRoute() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const qc = useQueryClient()
   const { data: competitor, isLoading, isError } = useCompetitor(id)
   const { data: changes } = useChanges(id)
   const { data: pages } = useCompetitorPages(id)
@@ -89,9 +91,11 @@ export function CompetitorDetailRoute() {
       toast.success('Run complete', {
         description: 'Sources checked. New changes (if any) appear in the feed.',
       })
+      if (id) qc.invalidateQueries({ queryKey: pagesKey(id) })
+      qc.invalidateQueries({ queryKey: ['changes'] })
     }
     wasRunning.current = running
-  }, [runState?.running, runState?.finishedAt])
+  }, [runState?.running, runState?.finishedAt, id, qc])
 
   const handleRun = () => {
     if (!id || isRunning) return
