@@ -10,6 +10,7 @@ import type { Change } from '../../schemas/change.js'
 import type { Competitor } from '../../schemas/competitor.js'
 import type { Chunk, Page } from '../../schemas/page.js'
 import { sha256, sha256Short } from '../../utils/hash.js'
+import { classifyExtraction } from '../crawl/content-quality.js'
 import { extract } from '../crawl/extractor.js'
 import { fetchHtml } from '../crawl/fetcher.js'
 import { rankPages } from '../crawl/page-ranker.js'
@@ -122,9 +123,12 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
   }
 
   const extracted = await extract(fetched.html, fetched.finalUrl)
-  if (extracted.textLength < 200) {
+  const verdict = classifyExtraction(extracted)
+  if (verdict.degraded) {
+    const existingForDegraded = await pagesRepo.findByCompetitorAndUrlHash(competitor.id, urlHash)
+    const reason = verdict.reason ?? 'extracted text too short'
     const degraded: Page = {
-      id: randomUUID(),
+      id: existingForDegraded?.id ?? randomUUID(),
       competitorId: competitor.id,
       url,
       urlHash,
@@ -134,12 +138,16 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
       fetchedAt: new Date().toISOString(),
       status: 'degraded',
       httpStatus: fetched.httpStatus,
-      degradedReason: 'extracted text too short',
+      degradedReason: reason,
       via: fetched.via,
+      pinned: existingForDegraded?.pinned,
     }
     await pagesRepo.upsert(degraded)
-    return { url, pageId: degraded.id, status: 'failed', reason: 'thin extraction' }
+    return { url, pageId: degraded.id, status: 'failed', reason }
   }
+  const fetchDegradedReason = fetched.degraded
+    ? fetched.reason ?? 'rendered fetchers failed'
+    : undefined
 
   const newContentHash = sha256(extracted.markdown)
   const existing = await pagesRepo.findByCompetitorAndUrlHash(competitor.id, urlHash)
@@ -150,9 +158,9 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
       ...existing,
       title: extracted.title,
       fetchedAt: new Date().toISOString(),
-      status: extracted.textLength < 200 ? 'degraded' : 'ok',
+      status: fetched.degraded ? 'degraded' : 'ok',
       httpStatus: fetched.httpStatus,
-      degradedReason: fetched.reason,
+      degradedReason: fetchDegradedReason,
       via: fetched.via,
     })
     return { url, pageId: existing.id, status: 'unchanged' }
@@ -200,9 +208,9 @@ export async function processUrl(competitor: Competitor, url: string): Promise<P
     markdown: extracted.markdown,
     contentHash: newContentHash,
     fetchedAt: new Date().toISOString(),
-    status: extracted.textLength < 200 ? 'degraded' : 'ok',
+    status: fetched.degraded ? 'degraded' : 'ok',
     httpStatus: fetched.httpStatus,
-    degradedReason: fetched.reason,
+    degradedReason: fetchDegradedReason,
     via: fetched.via,
     pinned: existing?.pinned,
   }

@@ -103,3 +103,25 @@ export function inspectContent(html: string): QualityResult {
 
   return { ok: true, textLength: bodyText.length }
 }
+
+export interface ExtractionSignals {
+  textLength: number
+  bodyTextLength: number
+  linkCount: number
+  headingCount: number
+}
+
+export type DegradeVerdict = { degraded: boolean; reason?: string }
+
+export function classifyExtraction(e: ExtractionSignals): DegradeVerdict {
+  if (e.bodyTextLength < 200 && e.linkCount < 3 && e.headingCount < 1) {
+    return { degraded: true, reason: 'empty page' }
+  }
+  if (e.linkCount >= 5 || e.headingCount >= 3) {
+    return { degraded: false }
+  }
+  if (e.textLength < 80 && e.bodyTextLength < 400) {
+    return { degraded: true, reason: 'extracted text too short' }
+  }
+  return { degraded: false }
+}
